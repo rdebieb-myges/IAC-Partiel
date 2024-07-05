@@ -1,7 +1,12 @@
 # Je n'ai pas utiliser un cloud provider pour tester mon code en raison de l'expiration des crédits !
-## Terraform 
+## Terraform (GCP)
+Dans les fichiers se trouve:
+  - Création d'un projet GCP
+  - La création d'une instance GCP sous debian 12 avec une adresse IP publique dédié (affecté au projet GCP)
+  - Le billing account
 
-
+Un terraform plan était nécessaire afin de connaitre le provider utilisé.
+Le terraform apply a permit de construire mes ressources.
 
 ## Ansible
 ### Création du répertoire ansible

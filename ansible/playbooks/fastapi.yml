@@ -1,0 +1,57 @@
+- name: Installation FastAPI
+  hosts: FastAPI
+  become: yes
+  tasks:
+    - name: Update repo and install python
+      ansible.builtin.apt:
+        name: python3.11
+        update_cache: yes
+
+    - name: git clone fastapi from github
+      ansible.builtin.git:
+        repo: https://gist.github.com/21456f4797100376f67443920e5d5145.git
+        dest: /root/repos/
+
+    - name: pip install requirements
+      ansible.builtin.pip:
+        requirements: /root/repos/21456f4797100376f67443920e5d5145/requirements.txt
+        virtualenv: /opt/FastAPI
+
+    - name: Créer le service systemd pour l'application FastAPI
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/FastAPI.service
+        content: |
+          [Unit]
+          Description=FastAPI application
+          After=network.target
+
+          [Service]
+          User=FastAPI
+          Group=FastAPI
+          WorkingDirectory=/opt/FastAPI
+          ExecStart=/opt/FastAPI/bin/uvicorn main:app --reload
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Créer un utilisateur dédié pour l'API
+      ansible.builtin.user:
+        name: "FastAPI"
+        shell: /bin/bash
+        state: present
+
+    - name: Assure que le répertoire de l'application existe
+      ansible.builtin.file:
+        path: "/opt/FastAPI"
+        state: directory
+        owner: "FastAPI"
+        group: "FastAPI"
+        mode: '0755'
+
+    - name: Démarrer et activer le service systemd
+      ansible.builtin.systemd_service:
+        name: "FastAPI"
+        enabled: yes
+        state: started
+        daemon_reload: true
